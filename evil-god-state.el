@@ -90,8 +90,7 @@
     (remove-hook 'post-command-hook 'evil-stop-execute-in-god-state)
     (when (buffer-live-p evil-execute-in-god-state-buffer)
       (with-current-buffer evil-execute-in-god-state-buffer
-        (if (and (eq evil-previous-state 'visual)
-                 (not (use-region-p)))
+        (if (eq evil-previous-state 'visual)
             (progn
               (evil-change-to-previous-state)
               (evil-exit-visual-state))
@@ -106,15 +105,9 @@
   (add-hook 'post-command-hook #'evil-stop-execute-in-god-state t)
   (setq evil-execute-in-god-state-buffer (current-buffer))
   (setq evil-god-last-command last-command)
-  (cond
-   ((evil-visual-state-p)
-    (let ((mrk (mark))
-          (pnt (point)))
-      (evil-god-state)
-      (set-mark mrk)
-      (goto-char pnt)))
-   (t
-    (evil-god-state)))
+  (when (evil-visual-state-p)
+    (evil-visual-expand-region))
+  (evil-god-state)
   (evil-echo "Switched to God state for the next command ..."))
 
 ;;; Unconditionally exit Evil-God state.
